@@ -5,14 +5,6 @@ REM echo %FarasaDataDir%
 
 set _argcActual=0
 
-if %1 EQU -h (
-    goto:ShowUsage
-) 
-
-if %1 EQU --help (
-    goto:ShowUsage
-) 
-
 for %%i in (%*) do set /A _argcActual+=1
 
 if %_argcActual% EQU 0 (
@@ -22,6 +14,15 @@ if %_argcActual% EQU 0 (
   goto:_EOF
 
 )
+
+
+if %1 EQU -h (
+    goto:ShowUsage
+) 
+
+if %1 EQU --help (
+    goto:ShowUsage
+) 
 
 if %_argcActual% EQU 1 (
 
