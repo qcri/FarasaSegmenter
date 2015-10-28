@@ -24,17 +24,19 @@ How to run the software
 1 - Command line:
 
 Limux/Mac OS
+
 	set FarasaDataDir=<FarasaData>\
 	java -Dfile.encoding=UTF-8 -jar dist/Farasa.jar -i InputFile -o OutputFile
 
 WINDOWS
+
 	set FarasaDataDir=<FARASADATADIR>/
 	java -Dfile.encoding=UTF-8 -jar dist/Farasa.jar -i InputFile -o OutputFile
 
 
 Parameters:
 
-	QataraLib <--help|-h> [--input|-i inputFile] [--output|-o outputFile]
+	Farasa.sh|Farasa.bat <--help|-h> [--input|-i inputFile] [--output|-o outputFile]
 	* options: 
  	*  --help		display help information
  	*  --input		inputfile
