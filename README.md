@@ -11,7 +11,8 @@ Download
 
 QCRI FARASA. Latest release
 You may check-out the latest version from the githup repository: https://github.com/Qatar-Computing-Research-Institute/Farasa
-Data directory is not included. Download the data from http://alt.qcri.org/tools/farasaData.tgz 
+<!-- Data directory is not included. Download the data from http://alt.qcri.org/tools/farasaData.tgz 
+-->
 
 
 CONTENTS
