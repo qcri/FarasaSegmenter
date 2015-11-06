@@ -66,15 +66,15 @@ fi
 # 
 
 if [[ $# -eq 0 ]]; then
-   FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar 
+   FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar -c atb
 fi
 
 if [[ $# -eq 1 ]]; then
-    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar < $1
+    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar -c atb < $1
 fi
 
 if [[ $# -eq 2 ]]; then
-    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar -i $1 -o $2
+    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar -c atb -i $1 -o $2
 fi
 
 exit 0

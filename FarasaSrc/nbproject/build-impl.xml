@@ -37,8 +37,8 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <property environment="env"/>
-    <property key="FarasaDataDir" path="/QCRI/Dev/ArabicNLP/FarasaRelease/FarasaData/"/>
+    <!--property environment="env"/-->
+    <!--property key="FarasaDataDir" path="/QCRI/Dev/ArabicNLP/FarasaRelease/FarasaData/"/-->
     <target depends="-pre-init" name="-init-private">
         <property file="nbproject/private/config.properties"/>
         <property file="nbproject/private/configs/${config}.properties"/>

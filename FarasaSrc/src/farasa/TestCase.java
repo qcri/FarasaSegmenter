@@ -32,6 +32,7 @@ public class TestCase {
         String arg;
         String infile="";
         String outfile="";
+        String scheme="";
         int args_flag = 0; // correct set of arguments
         
         String dataDirectory = System.getenv("FarasaDataDir");
@@ -43,7 +44,7 @@ public class TestCase {
         while (i < args.length) {
             arg = args[i++];
             // 
-            if (arg.equals("--help") || arg.equals("-h") || (args.length!=0 && args.length!=4)) {
+            if (arg.equals("--help") || arg.equals("-h") || (args.length!=0 && args.length!=2 && args.length!=4 && args.length!=6)) {
                 System.out.println("Usage: Farasa <--help|-h> <[-i|--input] [in-filename]> <[-o|--output] [out-filename]>");
                 System.exit(-1);
                 } 
@@ -56,7 +57,11 @@ public class TestCase {
                                 args_flag++;
                                 outfile = args[i];
                 }       
-       
+            if (arg.equals("--scheme") || arg.equals("-c")) {
+                                args_flag++;
+                                scheme = args[i];
+                                //System.out.println("Scheme Value:\""+scheme+"\"");
+                }            
         }
 
         System.err.print("Initializing the system ....");
@@ -67,9 +72,9 @@ public class TestCase {
         System.err.print("\r");
         System.err.println("System ready!               ");
         if(args_flag==0) {
-           processFile(nbt);
+           processFile(nbt,scheme);
         }else {
-           processFile(infile, outfile, nbt);
+           processFile(infile, outfile, nbt,scheme);
         }
     }   
 
@@ -78,23 +83,179 @@ public class TestCase {
         String inputDir = "/Users/kareemdarwish/RESEARCH/ArabicProcessingTools-master/FarasaData/";
 
         Farasa nbt = new Farasa(inputDir);
-        processFile("/work/test.txt","/work/test.txt.out", nbt);
+        processFile("/work/test.txt","/work/test.txt.out", nbt,"");
     }
         
-     private static void processFile(Farasa nbt) throws FileNotFoundException, IOException {
+     private static void processFile(Farasa nbt, String sch) throws FileNotFoundException, IOException {
          
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        processBuffer(br,bw,nbt);
+        processBuffer(br,bw,nbt,sch);
      }
      
-    private static void processFile(String filename, String outfilename, Farasa nbt) throws FileNotFoundException, IOException {
-        BufferedReader br = openFileForReading(filename);
-        BufferedWriter bw = openFileForWriting(outfilename);
-        processBuffer(br,bw,nbt);
+    private static void processFile(String filename, String outfilename, Farasa nbt, String sch) throws FileNotFoundException, IOException {
+        BufferedReader br;
+        BufferedWriter bw;
+        
+        if(!filename.equals(""))
+            br = openFileForReading(filename);
+        else
+            br = new BufferedReader(new InputStreamReader(System.in));
+        
+        if(!outfilename.equals(""))
+            bw = openFileForWriting(outfilename);
+        else
+            bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        
+        processBuffer(br,bw,nbt,sch);
     }
-     
-    private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa nbt) throws FileNotFoundException, IOException {
+
+private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa nbt, String sch) throws FileNotFoundException, IOException {
+
+        String line = "";
+        String topSolution;
+        // HashMap<String, String> seenBefore = new HashMap<String, String>();
+
+        while ((line = br.readLine()) != null) {
+            ArrayList<String> words = ArabicUtils.tokenize(ArabicUtils.removeDiacritics(line));
+            for (String w : words) {
+                if (!nbt.hmSeenBefore.containsKey(w)) {
+                    TreeMap<Double, String> solutions = nbt.mostLikelyPartition(ArabicUtils.buck2utf8(w), 1);
+                    topSolution = w;
+                    if (solutions.size() > 0)
+                        topSolution = solutions.get(solutions.firstKey());
+                    topSolution = topSolution.replace(";", "").replace("++", "+");
+                    nbt.hmSeenBefore.put(w, topSolution);
+                    
+                    if(sch.equals("atb")) {
+                        topSolution = produceSpecialSegmentation(topSolution, nbt);
+                    }
+                    bw.write(topSolution.replace(";", "").replace("++", "+") + " ");
+                    bw.flush();
+                    
+                }
+                else
+                {
+                    if(sch.equals("atb")) {
+                        topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt);
+                    }
+                    else 
+                        topSolution = nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+") + " ";
+                    
+                    bw.write(topSolution + " ");
+                }
+            }
+            bw.write("\n");
+        }
+        bw.close();
+    }    
+    
+private static void processBufferNew(BufferedReader br, BufferedWriter bw, Farasa nbt) throws FileNotFoundException, IOException {
+
+        String line = "";
+        
+        // HashMap<String, String> seenBefore = new HashMap<String, String>();
+        
+        while ((line = br.readLine()) != null) {
+            ArrayList<String> words = ArabicUtils.tokenize(ArabicUtils.removeDiacritics(line));
+            for (String w : words) {
+                if (!nbt.hmSeenBefore.containsKey(w)) {
+                    TreeMap<Double, String> solutions = nbt.mostLikelyPartition(ArabicUtils.buck2utf8(w), 1);
+                    String topSolution = w;
+                    if (solutions.size() > 0)
+                        topSolution = solutions.get(solutions.firstKey());
+                    topSolution = topSolution.replace(";", "").replace("++", "+");
+                    nbt.hmSeenBefore.put(w, topSolution);
+                    
+                    topSolution = produceSpecialSegmentation(topSolution, nbt);
+                    
+                    bw.write(topSolution.replace(";", "").replace("++", "+") + " ");
+                    bw.flush();
+                    
+                }
+                else
+                {
+                    String topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt);
+                    bw.write(topSolution + " ");
+                }
+            }
+            bw.write("\n");
+        }
+        bw.close();
+    }
+    
+    public static String produceSpecialSegmentation(String segmentedWord, Farasa nbt)
+    {
+        String output = "";
+        
+        String tmp = nbt.getProperSegmentation(segmentedWord);
+        
+        // attach Al to the word
+        tmp = tmp.replace("ال+;", ";ال");
+        
+        // attach ta marbouta
+        tmp = tmp.replace(";+ة", "ة;");
+        
+        // concat all prefixes and all suffixes
+        String[] parts = (" " + tmp + " ").split(";");
+        
+        // handle prefix
+        tmp = parts[0].replace("+", "").trim();
+        if (tmp.length() > 0)
+            output += tmp + "+ ";
+        
+        // handle stem
+        output += parts[1].trim();
+        
+        // handle suffix
+        tmp = parts[2].replace("+", "").trim();
+        if (tmp.length() > 0)
+            output += " +" + tmp;
+        
+        output = output.trim();
+        while (output.startsWith("+"))
+            output = output.substring(1);
+        while (output.endsWith("+"))
+            output = output.substring(0, output.length() - 1);
+        
+        return output;
+    }
+       
+    public static String produceSpecialSegmentation0(String segmentedWord, Farasa nbt)
+    {
+        String output = "";
+        
+        String tmp = nbt.getProperSegmentation(segmentedWord);
+        
+        // attach Al to the word
+        tmp = tmp.replace("ال+;", ";ال");
+        
+        // concat all prefixes and all suffixes
+        String[] parts = (" " + tmp + " ").split(";");
+        
+        // handle prefix
+        tmp = parts[0].replace("+", "").trim();
+        if (tmp.length() > 0)
+            output += tmp + "+ ";
+        
+        // handle stem
+        output += parts[1].trim();
+        
+        // handle suffix
+        tmp = parts[2].replace("+", "").trim();
+        if (tmp.length() > 0)
+            output += " +" + tmp;
+        
+        output = output.trim();
+        while (output.startsWith("+"))
+            output = output.substring(1);
+        while (output.endsWith("+"))
+            output = output.substring(0, output.length() - 1);
+        
+        return output;
+    }
+ 
+    private static void processBuffer0(BufferedReader br, BufferedWriter bw, Farasa nbt) throws FileNotFoundException, IOException {
 
         String line = "";
         
