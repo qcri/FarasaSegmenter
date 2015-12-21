@@ -62,19 +62,20 @@ then
   exit 0
 fi
 
-
+#
+BASEDIR=$(dirname $0)
 # 
 
 if [[ $# -eq 0 ]]; then
-   FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar 
+   FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -cp $BASEDIR/dist/:$BASEDIR/lib/ -jar $BASEDIR/dist/Farasa.jar 
 fi
 
 if [[ $# -eq 1 ]]; then
-    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar < $1
+   FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -cp $BASEDIR/dist/ -jar $BASEDIR/dist/Farasa.jar < $1
 fi
 
 if [[ $# -eq 2 ]]; then
-    FarasaDataDir=/QCRI/Dev/ArabicNLP/Farasa/FarasaData/ java -jar dist/Farasa.jar -i $1 -o $2
+   FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -cp $BASEDIR/dist/ -jar $BASEDIR/dist/Farasa.jar -i $1 -o $2
 fi
 
 exit 0
