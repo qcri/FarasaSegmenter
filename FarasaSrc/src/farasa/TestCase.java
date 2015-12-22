@@ -33,6 +33,8 @@ public class TestCase {
         String infile="";
         String outfile="";
         String scheme="";
+        Boolean norm = true; //normalization Default = True
+        
         int args_flag = 0; // correct set of arguments
         
         String dataDirectory = System.getenv("FarasaDataDir");
@@ -45,7 +47,7 @@ public class TestCase {
             arg = args[i++];
             // 
             if (arg.equals("--help") || arg.equals("-h") || (args.length!=0 && args.length!=2 && args.length!=4 && args.length!=6)) {
-                System.out.println("Usage: Farasa <--help|-h> <[-i|--input] [in-filename]> <[-o|--output] [out-filename]>");
+                System.out.println("Usage: Farasa <--help|-h> <[-c|--scheme] atb> <[-n|--norm] true|false> <[-i|--input] [in-filename]> <[-o|--output] [out-filename]>");
                 System.exit(-1);
                 } 
             
@@ -61,7 +63,13 @@ public class TestCase {
                                 args_flag++;
                                 scheme = args[i];
                                 //System.out.println("Scheme Value:\""+scheme+"\"");
-                }            
+                }      
+            if (arg.equals("--norm") || arg.equals("-n")) {
+                                args_flag++;
+                                if(args[i].toLowerCase().equals("false"))
+                                        norm = false;
+                                //System.out.println("Scheme Value:\""+normalization+"\"");
+                }      
         }
 
         System.err.print("Initializing the system ....");
@@ -72,9 +80,9 @@ public class TestCase {
         System.err.print("\r");
         System.err.println("System ready!               ");
         if(args_flag==0) {
-           processFile(nbt,scheme);
+           processFile(nbt,scheme, norm);
         }else {
-           processFile(infile, outfile, nbt,scheme);
+           processFile(infile, outfile, nbt,scheme, norm);
         }
     }   
 
@@ -83,17 +91,17 @@ public class TestCase {
         String inputDir = "/Users/kareemdarwish/RESEARCH/ArabicProcessingTools-master/FarasaData/";
 
         Farasa nbt = new Farasa(inputDir);
-        processFile("/work/test.txt","/work/test.txt.out", nbt,"");
+        processFile("/work/test.txt","/work/test.txt.out", nbt,"",false);
     }
         
-     private static void processFile(Farasa nbt, String sch) throws FileNotFoundException, IOException {
+     private static void processFile(Farasa nbt, String sch, boolean norm) throws FileNotFoundException, IOException {
          
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        processBuffer(br,bw,nbt,sch);
+        processBuffer(br,bw,nbt,sch,norm);
      }
      
-    private static void processFile(String filename, String outfilename, Farasa nbt, String sch) throws FileNotFoundException, IOException {
+    private static void processFile(String filename, String outfilename, Farasa nbt, String sch, boolean norm) throws FileNotFoundException, IOException {
         BufferedReader br;
         BufferedWriter bw;
         
@@ -107,10 +115,10 @@ public class TestCase {
         else
             bw = new BufferedWriter(new OutputStreamWriter(System.out));
         
-        processBuffer(br,bw,nbt,sch);
+        processBuffer(br,bw,nbt,sch, norm);
     }
 
-private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa nbt, String sch) throws FileNotFoundException, IOException {
+private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa nbt, String sch, boolean norm) throws FileNotFoundException, IOException {
 
         String line = "";
         String topSolution;
@@ -124,12 +132,17 @@ private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa n
                     topSolution = w;
                     if (solutions.size() > 0)
                         topSolution = solutions.get(solutions.firstKey());
+                    
                     topSolution = topSolution.replace(";", "").replace("++", "+");
                     nbt.hmSeenBefore.put(w, topSolution);
                     
                     if(sch.equals("atb")) {
-                        topSolution = produceSpecialSegmentation(topSolution, nbt);
+                        topSolution = produceSpecialSegmentation(topSolution, nbt, norm);
+                    }else {
+                        if(norm)
+                            topSolution = ArabicUtils.normalizeFull(topSolution);
                     }
+                    nbt.hmSeenBefore.put(w, topSolution);
                     bw.write(topSolution.replace(";", "").replace("++", "+") + " ");
                     bw.flush();
                     
@@ -137,11 +150,14 @@ private static void processBuffer(BufferedReader br, BufferedWriter bw, Farasa n
                 else
                 {
                     if(sch.equals("atb")) {
-                        topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt);
+                        topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt, norm);
                     }
-                    else 
+                    else {
+                        
                         topSolution = nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+") + " ";
-                    
+                        if(norm)
+                            topSolution = ArabicUtils.normalizeFull(topSolution);
+                    }
                     bw.write(topSolution + " ");
                 }
             }
@@ -167,7 +183,7 @@ private static void processBufferNew(BufferedReader br, BufferedWriter bw, Faras
                     topSolution = topSolution.replace(";", "").replace("++", "+");
                     nbt.hmSeenBefore.put(w, topSolution);
                     
-                    topSolution = produceSpecialSegmentation(topSolution, nbt);
+                    topSolution = produceSpecialSegmentation(topSolution, nbt, false);
                     
                     bw.write(topSolution.replace(";", "").replace("++", "+") + " ");
                     bw.flush();
@@ -175,7 +191,7 @@ private static void processBufferNew(BufferedReader br, BufferedWriter bw, Faras
                 }
                 else
                 {
-                    String topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt);
+                    String topSolution = produceSpecialSegmentation(nbt.hmSeenBefore.get(w).replace(";", "").replace("++", "+"), nbt, false);
                     bw.write(topSolution + " ");
                 }
             }
@@ -184,7 +200,7 @@ private static void processBufferNew(BufferedReader br, BufferedWriter bw, Faras
         bw.close();
     }
     
-    public static String produceSpecialSegmentation(String segmentedWord, Farasa nbt)
+    public static String produceSpecialSegmentation(String segmentedWord, Farasa nbt, boolean norm)
     {
         String output = "";
         
@@ -195,9 +211,11 @@ private static void processBufferNew(BufferedReader br, BufferedWriter bw, Faras
         
         // attach ta marbouta
         tmp = tmp.replace(";+ة", "ة;");
-        
-        tmp = ArabicUtils.normalizeFull(tmp);
-        
+
+        // normalize output        
+        if(norm)
+            tmp = ArabicUtils.normalizeFull(tmp);
+
         // concat all prefixes and all suffixes
         String[] parts = (" " + tmp + " ").split(";");
         

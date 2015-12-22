@@ -68,15 +68,15 @@ BASEDIR=$(dirname $0)
 # 
 
 if [[ $# -eq 0 ]]; then
-   FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb
+   FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb -n true 
 fi
 
 if [[ $# -eq 1 ]]; then
-    FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb < $1
+    FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb -n true < $1
 fi
 
 if [[ $# -eq 2 ]]; then
-    FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb -i $1 -o $2
+    FarasaDataDir=$BASEDIR/../FarasaData/ java -Dfile.encoding=UTF-8 -jar $BASEDIR/dist/Farasa.jar -c atb -n true -i $1 -o $2
 fi
 
 exit 0
