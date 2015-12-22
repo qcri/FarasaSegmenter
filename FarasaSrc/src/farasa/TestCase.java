@@ -196,6 +196,8 @@ private static void processBufferNew(BufferedReader br, BufferedWriter bw, Faras
         // attach ta marbouta
         tmp = tmp.replace(";+ة", "ة;");
         
+        tmp = ArabicUtils.normalizeFull(tmp);
+        
         // concat all prefixes and all suffixes
         String[] parts = (" " + tmp + " ").split(";");
         
