@@ -88,7 +88,7 @@ LICENSE
     
         Kareem M. Darwish <kdarwish@qf.org.qa>
         Ahmed Abdelali <aabdelali@qf.org.qa>
-	Hamdy Mubarak <hmubarak@qf.org.qa>
+        Hamdy Mubarak <hmubarak@qf.org.qa>
     
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
