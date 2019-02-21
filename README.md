@@ -24,7 +24,7 @@ How to run the software
 ------------------------
 1 - Command line:
 
-Limux/Mac OS
+Linux/Mac OS
 
 	set FarasaDataDir=<FarasaData>\
 	java -Dfile.encoding=UTF-8 -jar dist/Farasa.jar -i InputFile -o OutputFile
